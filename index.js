@@ -27,33 +27,42 @@ async function run() {
   try {
     client.connect();
     const productsCollection = client.db("emaJohnData").collection("products");
-   // add all products
+    const ordersCollection = client.db("emaJohnData").collection("orders");
+    // add all products
     app.post("/addProduct", async (req, res) => {
-      const newProduct = req.body; 
+      const newProduct = req.body;
       const result = await productsCollection.insertMany(newProduct);
       console.log(result);
       res.send(result);
     });
-    // get limited products 
+    // get limited products
     app.get("/products", async (req, res) => {
       const result = await productsCollection.find().limit(20).toArray();
       res.send(result);
     });
-    // get single product 
+    // get single product
     app.get("/products/:key", async (req, res) => {
-      const product = {key: req.params.key} ;
+      const product = { key: req.params.key };
       const result = await productsCollection.find(product).toArray();
       console.log(result);
       res.send(result[0]);
-    }); 
+    });
     // get some products
     app.post("/reviewProducts", async (req, res) => {
-      const productKeys =  req.body ;
-      result = await productsCollection.find({key: {$in: productKeys}}).toArray();
+      const productKeys = req.body;
+      result = await productsCollection
+        .find({ key: { $in: productKeys } })
+        .toArray();
       console.log(result);
       res.send(result);
     });
-    
+    // place order
+    app.post("/addOrder", async (req, res) => {
+      const newOrder = req.body;
+      const result = await ordersCollection.insertOne(newOrder);
+      console.log(result);
+      res.send(result);
+    });
   } finally {
     await client.close();
   }
