@@ -37,7 +37,8 @@ async function run() {
     });
     // get limited products
     app.get("/products", async (req, res) => {
-      const result = await productsCollection.find().limit(20).toArray();
+      const search = req.query.search;
+      const result = await productsCollection.find({name: {$regex: search} }).limit(20).toArray();
       res.send(result);
     });
     // get single product
@@ -63,10 +64,11 @@ async function run() {
       console.log(result);
       res.send(result);
     });
+    
   } finally {
     await client.close();
   }
 }
 run().catch(console.dir);
 
-app.listen(port);
+app.listen(port, () => console.log("Server started on http://localhost:4000"));
